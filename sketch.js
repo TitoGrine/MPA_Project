@@ -1,28 +1,37 @@
 let img_interior = [];
-let img_meio = [];
+let img_middle = [];
 let img_exterior = [];
 let fundo;
+
+let sounds = [];
 
 let angle = 0;
 let nrFiles = 18;
 let imgNr = [0, 0, 0];
+let soundFile = [null, null, null];
 
 p5.disableFriendlyErrors = true;
+
+let synth;
 
 function preload() {
   fundo = loadImage("fundo.png");
 
   for (let i = 0; i < nrFiles; i++) {
-    img_interior[i] = loadImage("cena_interior/img_" + String(i) + ".png");
+    img_interior[i] = loadImage(`images/scene_interior/img_${i}.png`);
+    img_middle[i] = loadImage(`images/scene_middle/img_${i}.png`);
+    img_exterior[i] = loadImage(`images/scene_exterior/img_${i}.png`);
   }
 
-  for (let i = 0; i < nrFiles; i++) {
-    img_meio[i] = loadImage("cena_meio/img_" + String(i) + ".png");
+  for (let i = 0; i < 2; i++) {
+    sounds[i] = [
+      loadSound(`sounds/drums/drums_${i}.mp3`),
+      loadSound(`sounds/bassline/bassline_${i}.mp3`),
+      loadSound(`sounds/melody/melody_${i}.mp3`),
+    ];
   }
 
-  for (let i = 0; i < nrFiles; i++) {
-    img_exterior[i] = loadImage("cena_exterior/img_" + String(i) + ".png");
-  }
+  synth = new p5.PolySynth();
 }
 
 function setup() {
@@ -31,8 +40,11 @@ function setup() {
   imageMode(CENTER);
   angleMode(DEGREES);
 
-  for (let i = 0; i < nrFiles; i++) {
-    imgNr[i] = int(random(nrFiles));
+  for (let i = 0; i < 3; i++) {
+    let randomNum = int(random(nrFiles));
+    imgNr[i] = int(randomNum);
+
+    if (randomNum < 2) soundFile[i] = sounds[randomNum][i];
   }
 }
 
@@ -46,11 +58,27 @@ if (window.DeviceOrientationEvent) {
   );
 }
 
+function refreshSounds() {
+  soundFile.forEach((file) => {
+    if (file !== null) file.stop();
+  });
+
+  for (let i = 0; i < 3; i++) {
+    soundFile[i] = imgNr[i] < 2 ? sounds[imgNr[i]][i] : null;
+  }
+
+  soundFile.forEach((file) => {
+    if (file !== null) file.loop();
+  });
+}
+
 function mousePressed() {
   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
   let i = int((d / min(height / 2, width / 2)) * 3);
-  // let i = int(random(3));
-  imgNr[i] = int(random(nrFiles));
+  let randomNum = int(random(nrFiles));
+  imgNr[i] = randomNum;
+
+  refreshSounds();
 }
 
 function deviceShaken() {
@@ -118,6 +146,8 @@ function keyPressed() {
       break;
   }
 
+  refreshSounds();
+
   return false;
 }
 
@@ -128,11 +158,13 @@ function draw() {
   scale(min(height / 1080, width / 1080));
   image(fundo, 0, 0);
   image(img_exterior[imgNr[2]], 0, 0);
-  image(img_meio[imgNr[1]], 0, 0);
+  image(img_middle[imgNr[1]], 0, 0);
   image(img_interior[imgNr[0]], 0, 0);
   stroke(29, 28, 131);
   strokeWeight(6);
   noFill();
   ellipse(0, 0, 362, 362);
   ellipse(0, 0, 722, 722);
+
+  // synth.play("C4", 0.1, 0, 1);
 }
