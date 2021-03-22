@@ -10,9 +10,9 @@ let nrFiles = 18;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
 
-const numLoops = 5;
+const numLoops = 6;
 
-p5.disableFriendlyErrors = true;
+p5.disableFriendlyErrors = true; 
 
 let synth;
 
