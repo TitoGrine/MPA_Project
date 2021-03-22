@@ -10,6 +10,8 @@ let nrFiles = 18;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
 
+const numLoops = 5;
+
 p5.disableFriendlyErrors = true;
 
 let synth;
@@ -23,11 +25,11 @@ function preload() {
     img_exterior[i] = loadImage(`images/scene_exterior/img_${i}.png`);
   }
 
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < numLoops; i++) {
     sounds[i] = [
-      loadSound(`sounds/drums/drums_${i}.mp3`),
-      loadSound(`sounds/bassline/bassline_${i}.mp3`),
-      loadSound(`sounds/melody/melody_${i}.mp3`),
+      loadSound(`sounds/inner/inner_${i}.ogg`),
+      loadSound(`sounds/middle/middle_${i}.ogg`),
+      loadSound(`sounds/outer/outer_${i}.ogg`),
     ];
   }
 
@@ -44,7 +46,7 @@ function setup() {
     let randomNum = int(random(nrFiles));
     imgNr[i] = int(randomNum);
 
-    if (randomNum < 2) soundFile[i] = sounds[randomNum][i];
+    if (randomNum < numLoops) soundFile[i] = sounds[randomNum][i];
   }
 }
 
@@ -64,7 +66,7 @@ function refreshSounds() {
   });
 
   for (let i = 0; i < 3; i++) {
-    soundFile[i] = imgNr[i] < 2 ? sounds[imgNr[i]][i] : null;
+    soundFile[i] = imgNr[i] < numLoops ? sounds[imgNr[i]][i] : null;
   }
 
   soundFile.forEach((file) => {
@@ -76,6 +78,9 @@ function mousePressed() {
   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
   let i = int((d / min(height / 2, width / 2)) * 3);
   let randomNum = int(random(nrFiles));
+
+  if(i > 2) return;
+
   imgNr[i] = randomNum;
 
   refreshSounds();
