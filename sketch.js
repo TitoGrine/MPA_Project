@@ -6,11 +6,11 @@ let fundo;
 let sounds = [];
 
 let angle = 0;
-let nrFiles = 18;
+let nrFiles = 15;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
 
-const numLoops = 6;
+const numLoops = 15;
 
 let fft;
 
@@ -31,11 +31,14 @@ function preload() {
       loadSound(`sounds/middle/middle_${i}.ogg`),
       loadSound(`sounds/outer/outer_${i}.ogg`),
     ];
+
+    sounds[i][1].rate(1.005);
+    sounds[i][2].rate(1.01);
   }
 }
 
 function setup() {
-  createCanvas(0.9 * windowWidth, 0.9 * windowHeight, WEBGL);
+  createCanvas(windowWidth, windowHeight, WEBGL);
   frameRate(12);
   imageMode(CENTER);
   angleMode(DEGREES);
@@ -76,7 +79,7 @@ function refreshSounds() {
 
 function mousePressed() {
   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
-  let i = int((d / min(height / 2, width / 2)) * 3);
+  let i = int((d / min(height / 2, width / 2)) * 3 / 0.75);
   let randomNum = int(random(nrFiles));
 
   if (i > 2) return;
@@ -138,17 +141,8 @@ function keyPressed() {
     case "$":
       imgNr = [14, 14, 14];
       break;
-    case "%":
-      imgNr = [15, 15, 15];
-      break;
-    case "&":
-      imgNr = [16, 16, 16];
-      break;
-    case "/":
-      imgNr = [17, 17, 17];
-      break;
     default:
-      break;
+      return false;
   }
 
   refreshSounds();
@@ -157,7 +151,8 @@ function keyPressed() {
 }
 
 function draw() {
-  background(255);
+  background('#ADADDA');
+  scale(0.75);
   angle += 30;
   beginShape();
   let spectrum = fft.analyze(1024);
@@ -166,17 +161,17 @@ function draw() {
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
     let angle = map(i, 0, spectrum.length, 0, 360);
-    let r = map(amp, 0, 256, 370, 450);
-
+    let r = map(amp, 0, 256, 385, 500);
+    
     let x = r * cos(angle);
     let y = r * sin(angle);
-
+    
     curveVertex(x, y);
   }
   endShape();
   push();
+  scale(min(height / 1080, width / 1080));
   rotate(angle);
-  scale(min(height / 1080, width / 1080) - 0.1);
   image(fundo, 0, 0);
   image(img_exterior[imgNr[2]], 0, 0);
   image(img_middle[imgNr[1]], 0, 0);
