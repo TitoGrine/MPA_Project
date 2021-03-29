@@ -33,7 +33,9 @@ function preload() {
     ];
 
     sounds[i][1].rate(1.005);
+    sounds[i][1].pan(-0.5);
     sounds[i][2].rate(1.01);
+    sounds[i][2].pan(0.51);
   }
 }
 
@@ -77,9 +79,22 @@ function refreshSounds() {
   });
 }
 
+function mouseMoved() {
+  let x = int(map(mouseX, 0, width, 0, 5));
+  let y = int(map(mouseY, 0, height, 0, 3));
+
+  let num = 5 * y + x;
+
+  if (num !== imgNr[0]) {
+    imgNr = [num, num, num];
+
+    refreshSounds();
+  }
+}
+
 function mousePressed() {
   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
-  let i = int((d / min(height / 2, width / 2)) * 3 / 0.75);
+  let i = int(((d / min(height / 2, width / 2)) * 3) / 0.75);
   let randomNum = int(random(nrFiles));
 
   if (i > 2) return;
@@ -87,11 +102,6 @@ function mousePressed() {
   imgNr[i] = randomNum;
 
   refreshSounds();
-}
-
-function deviceShaken() {
-  let i = int(random(3));
-  imgNr[i] = int(random(nrFiles));
 }
 
 function keyPressed() {
@@ -151,9 +161,12 @@ function keyPressed() {
 }
 
 function draw() {
-  background('#ADADDA');
+  background("#ADADDA");
   scale(0.75);
   angle += 30;
+  push();
+  scale(min(height / 1080, width / 1080));
+  push();
   beginShape();
   let spectrum = fft.analyze(1024);
   fill(29, 28, 131);
@@ -161,16 +174,15 @@ function draw() {
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
     let angle = map(i, 0, spectrum.length, 0, 360);
-    let r = map(amp, 0, 256, 385, 500);
-    
+    let r = map(amp, 0, 256, 545, 780);
+
     let x = r * cos(angle);
     let y = r * sin(angle);
-    
+
     curveVertex(x, y);
   }
   endShape();
-  push();
-  scale(min(height / 1080, width / 1080));
+  pop();
   rotate(angle);
   image(fundo, 0, 0);
   image(img_exterior[imgNr[2]], 0, 0);
