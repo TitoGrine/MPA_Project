@@ -5,7 +5,7 @@ let fundo;
 
 let sounds = [];
 
-let angles = [31, 29, 31];
+let angles = [30, 31, 32];
 let nrFiles = 15;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
@@ -14,11 +14,19 @@ const startNum = 7;
 let pause = false;
 
 let fft;
+let compressors = new Array(nrFiles);
+let volume = 0.5;
 
 p5.disableFriendlyErrors = true;
 
 function preload() {
   fundo = loadImage("fundo.png");
+
+  compressors.fill([
+    new p5.Compressor(),
+    new p5.Compressor(),
+    new p5.Compressor(),
+  ]);
 
   for (let i = 0; i < nrFiles; i++) {
     img_interior[i] = loadImage(`images/scene_interior/img_${i}.png`);
@@ -30,7 +38,11 @@ function preload() {
       loadSound(`sounds/outer/outer_${i}.ogg`),
     ];
 
-    sounds[i].forEach((file) => file.setVolume(0.5));
+    sounds[i].forEach((file, index) => {
+      file.setVolume(volume);
+      file.disconnect();
+      compressors[i][index].process(file);
+    });
 
     sounds[i][1].rate(1.0075);
     sounds[i][1].pan(-0.6);
@@ -50,7 +62,7 @@ function setup() {
     soundFile[i] = sounds[startNum][i];
   }
 
-  fft = new p5.FFT(0.3, 256);
+  fft = new p5.FFT(0.2, 256);
 }
 
 if (window.DeviceOrientationEvent) {
@@ -65,7 +77,7 @@ if (window.DeviceOrientationEvent) {
 
 function refreshSounds() {
   soundFile.forEach((file) => {
-    if (file !== null) file.stop();
+    file.stop();
   });
 
   if (pause) return;
@@ -75,7 +87,8 @@ function refreshSounds() {
   }
 
   soundFile.forEach((file) => {
-    if (file !== null) file.loop();
+    file.setVolume(volume);
+    file.loop();
   });
 }
 
@@ -92,17 +105,25 @@ function mouseMoved() {
   }
 }
 
-function mousePressed() {
-  let d = int(dist(width / 2, height / 2, mouseX, mouseY));
-  let i = int(((d / min(height / 2, width / 2)) * 3) / 0.75);
-  let randomNum = int(random(nrFiles));
+function mouseWheel(event) {
+  volume = max(0, min(volume - event.deltaY / 60, 1));
 
-  if (i > 2) return;
-
-  imgNr[i] = randomNum;
-
-  refreshSounds();
+  soundFile.forEach((file) => {
+    file.setVolume(volume);
+  });
 }
+
+// function mousePressed() {
+//   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
+//   let i = int(((d / min(height / 2, width / 2)) * 3) / 0.75);
+//   let randomNum = int(random(nrFiles));
+
+//   if (i > 2) return;
+
+//   imgNr[i] = randomNum;
+
+//   refreshSounds();
+// }
 
 function keyPressed() {
   switch (key) {
@@ -178,7 +199,6 @@ const getFill = (num) => {
 
 function draw() {
   background("#ADADDA");
-
   let rectWidth = width / 5;
   let rectHeight = height / 3;
   let halfWidth = width / 2;
@@ -221,11 +241,7 @@ function draw() {
   pop();
   image(fundo, 0, 0);
 
-  console.log(angles);
-  angles = angles.map(
-    (angle, index) => (angle + 30 + (index === 1 ? -1 : 1)) % 360
-  );
-  console.log(angles);
+  angles = angles.map((angle, index) => (angle + 30 + index) % 360);
 
   push();
   rotate(angles[2]);
