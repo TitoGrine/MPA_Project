@@ -5,12 +5,13 @@ let fundo;
 
 let sounds = [];
 
-let angle = 0;
+let angles = [31, 29, 31];
 let nrFiles = 15;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
 
-const numLoops = 15;
+const startNum = 7;
+let pause = false;
 
 let fft;
 
@@ -23,19 +24,18 @@ function preload() {
     img_interior[i] = loadImage(`images/scene_interior/img_${i}.png`);
     img_middle[i] = loadImage(`images/scene_middle/img_${i}.png`);
     img_exterior[i] = loadImage(`images/scene_exterior/img_${i}.png`);
-  }
-
-  for (let i = 0; i < numLoops; i++) {
     sounds[i] = [
       loadSound(`sounds/inner/inner_${i}.ogg`),
       loadSound(`sounds/middle/middle_${i}.ogg`),
       loadSound(`sounds/outer/outer_${i}.ogg`),
     ];
 
-    sounds[i][1].rate(1.005);
-    sounds[i][1].pan(-0.5);
-    sounds[i][2].rate(1.01);
-    sounds[i][2].pan(0.51);
+    sounds[i].forEach((file) => file.setVolume(0.5));
+
+    sounds[i][1].rate(1.0075);
+    sounds[i][1].pan(-0.6);
+    sounds[i][2].rate(1.015);
+    sounds[i][2].pan(0.6);
   }
 }
 
@@ -46,10 +46,8 @@ function setup() {
   angleMode(DEGREES);
 
   for (let i = 0; i < 3; i++) {
-    let randomNum = int(random(nrFiles));
-    imgNr[i] = int(randomNum);
-
-    if (randomNum < numLoops) soundFile[i] = sounds[randomNum][i];
+    imgNr[i] = startNum;
+    soundFile[i] = sounds[startNum][i];
   }
 
   fft = new p5.FFT(0.3, 256);
@@ -70,8 +68,10 @@ function refreshSounds() {
     if (file !== null) file.stop();
   });
 
+  if (pause) return;
+
   for (let i = 0; i < 3; i++) {
-    soundFile[i] = imgNr[i] < numLoops ? sounds[imgNr[i]][i] : null;
+    soundFile[i] = sounds[imgNr[i]][i];
   }
 
   soundFile.forEach((file) => {
@@ -151,6 +151,9 @@ function keyPressed() {
     case "$":
       imgNr = [14, 14, 14];
       break;
+    case "p":
+      pause = !pause;
+      break;
     default:
       return false;
   }
@@ -160,16 +163,49 @@ function keyPressed() {
   return false;
 }
 
+const getFill = (num) => {
+  switch (num % 3) {
+    case 0:
+      return "#6019BD";
+    case 1:
+      return "#9792E3";
+    case 2:
+      return "#7107FA";
+    default:
+      return "#000";
+  }
+};
+
 function draw() {
   background("#ADADDA");
+
+  let rectWidth = width / 5;
+  let rectHeight = height / 3;
+  let halfWidth = width / 2;
+  let halfHeight = height / 2;
+
+  push();
+  noStroke();
+  for (let i = 0; i < 5; i++)
+    for (let j = 0; j < 3; j++) {
+      fill(getFill(5 * j + i));
+      rect(
+        i * rectWidth - halfWidth,
+        j * rectHeight - halfHeight,
+        rectWidth,
+        rectHeight
+      );
+    }
+  pop();
+
   scale(0.75);
-  angle += 30;
   push();
   scale(min(height / 1080, width / 1080));
   push();
   beginShape();
   let spectrum = fft.analyze(1024);
-  fill(29, 28, 131);
+  if (imgNr[0] < 2) fill("#3B0081");
+  else fill("#1D1C83");
   noStroke();
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
@@ -183,12 +219,31 @@ function draw() {
   }
   endShape();
   pop();
-  rotate(angle);
   image(fundo, 0, 0);
+
+  console.log(angles);
+  angles = angles.map(
+    (angle, index) => (angle + 30 + (index === 1 ? -1 : 1)) % 360
+  );
+  console.log(angles);
+
+  push();
+  rotate(angles[2]);
   image(img_exterior[imgNr[2]], 0, 0);
+  pop();
+
+  push();
+  rotate(angles[1]);
   image(img_middle[imgNr[1]], 0, 0);
+  pop();
+
+  push();
+  rotate(angles[0]);
   image(img_interior[imgNr[0]], 0, 0);
-  stroke(29, 28, 131);
+  pop();
+
+  if (imgNr[0] < 2) stroke("#3B0081");
+  else stroke("#1D1C83");
   strokeWeight(6);
   noFill();
   ellipse(0, 0, 362, 362);
