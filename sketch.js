@@ -157,7 +157,7 @@ function mousePressed() {
 
   imgNr[i] = randomNum;
 
-  rateDelta = random(0.001, 0.01);
+  rateDelta = random(0.001, 0.012);
 
   refreshSounds();
 }
