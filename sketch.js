@@ -187,11 +187,11 @@ function keyPressed() {
 const getFill = (num) => {
   switch (num % 3) {
     case 0:
-      return "#6019BD";
+      return "#FCC1B1";
     case 1:
-      return "#9792E3";
+      return "#FBA289";
     case 2:
-      return "#7107FA";
+      return "#FBB19D";
     default:
       return "#000";
   }
