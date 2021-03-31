@@ -15,7 +15,9 @@ let pause = false;
 
 let fft;
 let compressors = new Array(nrFiles);
-let volume = 0.5;
+let volume = 0.4;
+let url;
+let rateDelta = 0.0075;
 
 p5.disableFriendlyErrors = true;
 
@@ -44,9 +46,7 @@ function preload() {
       compressors[i][index].process(file);
     });
 
-    sounds[i][1].rate(1.0075);
     sounds[i][1].pan(-0.6);
-    sounds[i][2].rate(1.015);
     sounds[i][2].pan(0.6);
   }
 }
@@ -75,6 +75,22 @@ if (window.DeviceOrientationEvent) {
   );
 }
 
+const normalSounds = () => {
+  soundFile = soundFile.map((_, index) => sounds[imgNr[index]][index]);
+};
+
+const steelDrumsSounds = () => {
+  soundFile = soundFile.map((_, index) => sounds[13][index]);
+};
+
+const pianoSounds = () => {
+  soundFile = soundFile.map((_, index) => sounds[14][index]);
+};
+
+const marimbaSounds = () => {
+  soundFile = soundFile.map((_, index) => sounds[6][index]);
+};
+
 function refreshSounds() {
   soundFile.forEach((file) => {
     file.stop();
@@ -82,17 +98,34 @@ function refreshSounds() {
 
   if (pause) return;
 
-  for (let i = 0; i < 3; i++) {
-    soundFile[i] = sounds[imgNr[i]][i];
+  switch (url) {
+    case "/":
+      normalSounds();
+      break;
+    case "/steel_drums":
+      steelDrumsSounds();
+      break;
+    case "/piano":
+      pianoSounds();
+      break;
+    case "/marimba":
+      marimbaSounds();
+      break;
+    default:
+      minimalDraw();
+      break;
   }
 
-  soundFile.forEach((file) => {
+  soundFile.forEach((file, index) => {
     file.setVolume(volume);
+    file.rate(1.0 + rateDelta * index);
     file.loop();
   });
 }
 
 function mouseMoved() {
+  if (url !== "/") return;
+
   let x = int(map(mouseX, 0, width, 0, 5));
   let y = int(map(mouseY, 0, height, 0, 3));
 
@@ -113,17 +146,21 @@ function mouseWheel(event) {
   });
 }
 
-// function mousePressed() {
-//   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
-//   let i = int(((d / min(height / 2, width / 2)) * 3) / 0.75);
-//   let randomNum = int(random(nrFiles));
+function mousePressed() {
+  if (url === "/") return;
 
-//   if (i > 2) return;
+  let d = int(dist(width / 2, height / 2, mouseX, mouseY));
+  let i = int(((d / min(height / 2, width / 2)) * 3) / 0.75);
+  let randomNum = int(random(nrFiles));
 
-//   imgNr[i] = randomNum;
+  if (i > 2) return;
 
-//   refreshSounds();
-// }
+  imgNr[i] = randomNum;
+
+  rateDelta = random(0.001, 0.01);
+
+  refreshSounds();
+}
 
 function keyPressed() {
   switch (key) {
@@ -197,7 +234,7 @@ const getFill = (num) => {
   }
 };
 
-function draw() {
+const normalDraw = () => {
   background("#ADADDA");
   let rectWidth = width / 5;
   let rectHeight = height / 3;
@@ -239,9 +276,30 @@ function draw() {
   }
   endShape();
   pop();
+};
+
+const minimalDraw = () => {
+  background("#FBB19D");
+  scale(0.75);
+  push();
+  scale(min(height / 1080, width / 1080));
+};
+
+function draw() {
+  switch (url) {
+    case "/":
+      normalDraw();
+      break;
+    default:
+      minimalDraw();
+      break;
+  }
+
   image(fundo, 0, 0);
 
-  angles = angles.map((angle, index) => (angle + 30 + index) % 360);
+  angles = angles.map(
+    (angle, index) => (angle + 30 + (url === "/" ? index : 0)) % 360
+  );
 
   push();
   rotate(angles[2]);
@@ -264,6 +322,18 @@ function draw() {
   noFill();
   ellipse(0, 0, 362, 362);
   ellipse(0, 0, 722, 722);
-  ellipse(0, 0, 1082, 1082);
+
+  if (url === "/") ellipse(0, 0, 1082, 1082);
   pop();
 }
+
+// The actual router, get the current URL and generate the corresponding template
+let router = (evt) => {
+  url = "/" + window.location.hash.slice(1);
+
+  refreshSounds();
+};
+
+// For first load or when routes are changed in browser url box.
+window.addEventListener("load", router);
+window.addEventListener("hashchange", router);
