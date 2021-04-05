@@ -125,7 +125,7 @@ function refreshSounds() {
 }
 
 function mouseMoved() {
-  if (url !== "/") return;
+  if (url !== "/" || !playing) return;
 
   let x = int(map(mouseX, 0, width, 0, 5));
   let y = int(map(mouseY, 0, height, 0, 3));
