@@ -19,6 +19,7 @@ let volume = 0.4;
 let url;
 let rateDelta = 0.0075;
 let playing = false;
+let released = true;
 
 p5.disableFriendlyErrors = true;
 
@@ -147,12 +148,23 @@ function mouseWheel(event) {
   });
 }
 
+function mouseReleased() {
+  released = true;
+
+  return false;
+}
+
 function mousePressed() {
   if (!playing) {
     playing = true;
     refreshSounds();
     return;
   }
+
+  if(!released)
+    return;
+  
+  released = false;
 
   if (url === "/") return;
 
