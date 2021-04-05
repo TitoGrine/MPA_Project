@@ -5,7 +5,7 @@ let fundo;
 
 let sounds = [];
 
-let angles = [30, 31, 32];
+let angles = [0, 0, 0];
 let nrFiles = 15;
 let imgNr = [0, 0, 0];
 let soundFile = [null, null, null];
@@ -18,6 +18,7 @@ let compressors = new Array(nrFiles);
 let volume = 0.4;
 let url;
 let rateDelta = 0.0075;
+let playing = false;
 
 p5.disableFriendlyErrors = true;
 
@@ -147,6 +148,12 @@ function mouseWheel(event) {
 }
 
 function mousePressed() {
+  if (!playing) {
+    playing = true;
+    refreshSounds();
+    return;
+  }
+
   if (url === "/") return;
 
   let d = int(dist(width / 2, height / 2, mouseX, mouseY));
@@ -261,8 +268,7 @@ const normalDraw = () => {
   push();
   beginShape();
   let spectrum = fft.analyze(1024);
-  if (imgNr[0] < 2) fill("#3B0081");
-  else fill("#1D1C83");
+  fill("#1D1C83");
   noStroke();
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
@@ -297,9 +303,11 @@ function draw() {
 
   image(fundo, 0, 0);
 
-  angles = angles.map(
-    (angle, index) => (angle + 30 + (url === "/" ? index : 0)) % 360
-  );
+  if (playing) {
+    angles = angles.map(
+      (angle, index) => (angle + 30 + (url === "/" ? index : 0)) % 360
+    );
+  }
 
   push();
   rotate(angles[2]);
@@ -316,8 +324,7 @@ function draw() {
   image(img_interior[imgNr[0]], 0, 0);
   pop();
 
-  if (imgNr[0] < 2) stroke("#3B0081");
-  else stroke("#1D1C83");
+  stroke("#1D1C83");
   strokeWeight(6);
   noFill();
   ellipse(0, 0, 362, 362);
