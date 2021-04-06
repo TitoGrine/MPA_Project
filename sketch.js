@@ -86,7 +86,7 @@ const steelDrumsSounds = () => {
 };
 
 const pianoSounds = () => {
-  soundFile = soundFile.map((_, index) => sounds[11][index]);
+  soundFile = soundFile.map((_, index) => sounds[2][index]);
 };
 
 const marimbaSounds = () => {
@@ -285,7 +285,7 @@ const normalDraw = () => {
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
     let angle = map(i, 0, spectrum.length, 0, 360);
-    let r = map(amp, 0, 256, 545, 780);
+    let r = map(amp, 0, 256, 550, 780);
 
     let x = r * cos(angle);
     let y = r * sin(angle);
