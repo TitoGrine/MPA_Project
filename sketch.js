@@ -86,7 +86,7 @@ const steelDrumsSounds = () => {
 };
 
 const pianoSounds = () => {
-  soundFile = soundFile.map((_, index) => sounds[14][index]);
+  soundFile = soundFile.map((_, index) => sounds[11][index]);
 };
 
 const marimbaSounds = () => {
