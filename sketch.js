@@ -43,7 +43,7 @@ function preload() {
     ];
 
     sounds[i].forEach((file, index) => {
-      file.setVolume(volume);
+      file.setVolume(0, 0, 0);
       file.disconnect();
       compressors[i][index].process(file);
     });
@@ -95,7 +95,8 @@ const marimbaSounds = () => {
 
 function refreshSounds() {
   soundFile.forEach((file) => {
-    file.stop();
+    file.setVolume(0, 3, 0);
+    file.stop(3);
   });
 
   if (pause) return;
@@ -119,7 +120,8 @@ function refreshSounds() {
   }
 
   soundFile.forEach((file, index) => {
-    file.setVolume(volume);
+    file.setVolume(0, 0, 0);
+    file.setVolume(volume, 3, url === "/" || !playing ? 0 : 3);
     file.rate(1.0 + rateDelta * index);
     file.loop();
   });
@@ -156,8 +158,8 @@ function mouseReleased() {
 
 function mousePressed() {
   if (!playing) {
-    playing = true;
     refreshSounds();
+    playing = true;
     return;
   }
 
