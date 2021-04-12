@@ -14,12 +14,6 @@ There are also minified versions of the project with only one instrument and mel
   - [Piano](https://phenakistoscope.netlify.app/#piano)
   - [Marimba](https://phenakistoscope.netlify.app/#marimba)
 
-[![Video Demo](./docs/preview.png)](./docs/Phenakistoscope.mp4)
-
-<video width="320" height="240" controls>
-  <source src="./docs/Phenakistoscope.mp4" type="video/mp4">
-</video>
-
 ### Authors
 
 * **Tito Griné** - [TitoGrine](https://github.com/TitoGrine)
