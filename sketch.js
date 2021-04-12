@@ -26,6 +26,7 @@ p5.disableFriendlyErrors = true;
 function preload() {
   fundo = loadImage("fundo.png");
 
+  // Add compressors to make the balance the sound's highs and lows
   compressors.fill([
     new p5.Compressor(),
     new p5.Compressor(),
@@ -48,6 +49,7 @@ function preload() {
       compressors[i][index].process(file);
     });
 
+    // Adds a slight pan to give a feeling of more depth
     sounds[i][1].pan(-0.6);
     sounds[i][2].pan(0.6);
   }
@@ -95,12 +97,14 @@ const marimbaSounds = () => {
 
 function refreshSounds() {
   soundFile.forEach((file) => {
+    // Fades to no volume in 3 seconds and then stop
     file.setVolume(0, 3, 0);
     file.stop(3);
   });
 
   if (pause) return;
 
+  // Load sounds depending on the url hash
   switch (url) {
     case "/":
       normalSounds();
@@ -120,6 +124,7 @@ function refreshSounds() {
   }
 
   soundFile.forEach((file, index) => {
+    // Fades to set volume in 3 seconds
     file.setVolume(0, 0, 0);
     file.setVolume(volume, 3, url === "/" || !playing ? 0 : 3);
     file.rate(1.0 + rateDelta * index);
@@ -133,6 +138,7 @@ function mouseMoved() {
   let x = int(map(mouseX, 0, width, 0, 5));
   let y = int(map(mouseY, 0, height, 0, 3));
 
+  // Calculate which rectangle is being hovered
   let num = 5 * y + x;
 
   if (num !== imgNr[0]) {
@@ -143,6 +149,7 @@ function mouseMoved() {
 }
 
 function mouseWheel(event) {
+  // Changes the volume of all sounds proportional do scroll displacement
   volume = max(0, min(volume - event.deltaY / 60, 1));
 
   soundFile.forEach((file) => {
@@ -150,6 +157,7 @@ function mouseWheel(event) {
   });
 }
 
+// Prevents double click event on mobile
 function mouseReleased() {
   released = true;
 
@@ -163,9 +171,9 @@ function mousePressed() {
     return;
   }
 
-  if(!released)
-    return;
-  
+  // Prevents double click event on mobile
+  if (!released) return;
+
   released = false;
 
   if (url === "/") return;
@@ -184,6 +192,7 @@ function mousePressed() {
 }
 
 function keyPressed() {
+  // Used only for testing purposes
   switch (key) {
     case "0":
       imgNr = [0, 0, 0];
@@ -264,6 +273,7 @@ const normalDraw = () => {
 
   push();
   noStroke();
+  // Draws the various rectangles
   for (let i = 0; i < 5; i++)
     for (let j = 0; j < 3; j++) {
       fill(getFill(5 * j + i));
@@ -284,6 +294,7 @@ const normalDraw = () => {
   let spectrum = fft.analyze(1024);
   fill("#1D1C83");
   noStroke();
+  // Maps each frequency amplitude to a vertex around the wheel and creates a shape
   for (let i = 0; i < spectrum.length; i++) {
     let amp = spectrum[i];
     let angle = map(i, 0, spectrum.length, 0, 360);
@@ -317,6 +328,7 @@ function draw() {
 
   image(fundo, 0, 0);
 
+  // Rotate each wheel with slightly different angles depending on position
   if (playing) {
     angles = angles.map(
       (angle, index) => (angle + 30 + (url === "/" ? index : 0)) % 360
@@ -348,7 +360,7 @@ function draw() {
   pop();
 }
 
-// The actual router, get the current URL and generate the corresponding template
+// Gets the currents url hash
 let router = (evt) => {
   url = "/" + window.location.hash.slice(1);
 
