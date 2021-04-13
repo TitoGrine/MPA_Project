@@ -8,7 +8,7 @@ Project of MPA (Multimedia in Performing Arts - 1st year of the Master in Multim
 
 ### Instructions
 
-This project can be viewed on [phenakistoscope.netlify.app](phenakistoscope.netlify.app).  
+This project can be viewed on [phenakistoscope.netlify.app](https://phenakistoscope.netlify.app).  
 There are also minified versions of the project with only one instrument and melody:
   - [Steel Drums](https://phenakistoscope.netlify.app/#steel_drums)
   - [Piano](https://phenakistoscope.netlify.app/#piano)
