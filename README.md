@@ -17,3 +17,7 @@ There are also minified versions of the project with only one instrument and mel
 ### Authors
 
 * **Tito Griné** - [TitoGrine](https://github.com/TitoGrine)
+
+### Evaluation
+
+**Project Grade:** 19
